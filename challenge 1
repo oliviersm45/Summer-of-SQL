@@ -1,6 +1,28 @@
-SELECT 
-SPLIT_PART(TRANSACTION_CODE,'-',1) as bank
-,SUM(VALUE)
-from PD2023_WK01
-GROUP BY bank 
-Limit 100
+--SELECT 
+--SPLIT_PART(TRANSACTION_CODE,'-',1) as bank
+--,SUM(VALUE)
+--from PD2023_WK01
+--GROUP BY bank 
+--Limit 100
+
+-- SELECT
+-- SPLIT_PART(transaction_code,'-',1) as bank,
+-- CASE 
+-- WHEN online_or_in_person=1 THEN 'Online'
+-- WHEN online_or_in_person=2 THEN 'In-Person'
+-- END as online_in_person,
+-- DAYNAME(DATE(transaction_date,'dd/MM/yyyy hh24:mi:ss')) as week_day,
+-- SUM(value) as sum_value
+-- FROM pd2023_wk01
+-- Group BY 1,2,3; 
+
+
+SELECT
+SPLIT_PART(transaction_code,'-',1) as bank,
+customer_code,
+SUM(value) as total_value
+FROM pd2023_wk01
+GROUP BY SPLIT_PART(transaction_code,'-',1),
+customer_code;
+
+
