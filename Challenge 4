@@ -1,0 +1,60 @@
+--CTE to union the data together 
+WITH CTE as (
+SELECT *, 'pd2023_wk04_january' as tablename FROM pd2023_wk04_january
+UNION ALL
+SELECT *, 'pd2023_wk04_february' as tablename FROM PD2023_WK04_FEBRUARY
+UNION ALL
+SELECT *, 'pd2023_wk04_MARCH' as tablename FROM PD2023_WK04_MARCH
+UNION ALL
+SELECT *, 'pd2023_wk04_APRIL' as tablename FROM PD2023_WK04_APRIL
+UNION ALL
+SELECT *, 'pd2023_wk04_MAY' as tablename FROM PD2023_WK04_MAY
+UNION ALL
+SELECT *, 'pd2023_wk04_JUNE' as tablename FROM PD2023_WK04_JUNE
+UNION ALL
+SELECT *, 'pd2023_wk04_JULY' as tablename FROM PD2023_WK04_JULY
+UNION ALL
+SELECT *, 'pd2023_wk04_AUGUST' as tablename FROM PD2023_WK04_AUGUST
+UNION ALL
+SELECT *, 'pd2023_wk04_SEPTEMBER' as tablename FROM PD2023_WK04_SEPTEMBER
+UNION ALL
+SELECT *, 'pd2023_wk04_OCTOBER' as tablename FROM PD2023_WK04_OCTOBER
+UNION ALL
+SELECT *, 'pd2023_wk04_NOVEMBER' as tablename FROM PD2023_WK04_NOVEMBER
+UNION ALL
+SELECT *, 'pd2023_wk04_DECEMBER' as tablename FROM PD2023_WK04_DECEMBER)
+-- Second CTE which references to the unioned data set this splits the tablename into a month and adds the joining day to make it a date 
+, CTE_2 AS (
+SELECT 
+id,
+date_from_parts(2023,DATE_PART('month',DATE(SPLIT_PART(tablename,'_',3),'MMMM')),joining_day) as joining_date,
+demographic,
+value
+FROM CTE
+)
+--Pivoting the data 
+,CTE_3 AS (
+SELECT 
+id,
+joining_date,
+ethnicity,
+account_type,
+date_of_birth,
+
+FROM CTE_2
+PIVOT(MAX(value) FOR demographic IN ('Ethnicity','Account Type','Date of Birth')) AS P
+(id,
+joining_date,
+ethnicity,
+account_type,
+date_of_birth)
+)
+
+-- Selecting the relevant columns after the Pivot 
+SELECT 
+id,
+joining_date,
+account_type,
+date_of_birth,
+ethnicity
+FROM CTE_3
