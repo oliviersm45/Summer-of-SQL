@@ -1,0 +1,29 @@
+WIth CTE_1 as (SELECT 
+SPLIT_PART(TRANSACTION_CODE,'-',1) As Bank 
+,MONTHNAME( DATE(TRANSACTION_DATE,'dd/mm/yyyy hh:mi:ss'))as month_name,
+SUM(VALUE)as total_value,
+RANK() OVER (PARTITION BY MONTHNAME( DATE(TRANSACTION_DATE,'dd/mm/yyyy hh:mi:ss')) ORDER BY SUM(VALUE)  DESC) as rank_
+FROM
+PD2023_WK01
+GROUP BY SPLIT_PART(transaction_code,'-',1),
+MONTHNAME( DATE(TRANSACTION_DATE,'dd/mm/yyyy hh:mi:ss')),SPLIT_PART(TRANSACTION_CODE,'-',1))
+
+, Average_rank as (
+
+SELECT BANK ,
+avg(rank_)as Average_rank_by_bank
+FROM CTE_1
+GROUP BY BANK )
+
+
+, Average_rank_value as ( 
+SELECT rank_,
+AVG(total_value)as average_transaction_per_rank
+FROM CTE_1
+GROUP By rank_)
+
+SELECT * 
+FROM CTE_1
+
+INNER JOIN AVERAGE_RANK as AR on AR.Bank= CTE_1.Bank
+INNER JOIN AVERAGE_RANK_VALUE as ARV on ARV.rank_ =CTE_1.rank_
